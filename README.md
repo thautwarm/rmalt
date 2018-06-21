@@ -2,6 +2,8 @@ The Malt Programming Language
 
 ## 马特语言， 只需要四分之一个整日，你就能实现！
 
+- [而这个方法只需要十分钟就能掌握](https://github.com/thautwarm/RBNF)
+
 特性:
 
 - auto currying
