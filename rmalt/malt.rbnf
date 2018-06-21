@@ -1,0 +1,162 @@
+import std.common.[Name Space DoubleQuotedStr Comment]
+pyimport rmalt.asdl.[*]
+pyimport rmalt.op_priority.[*]
+pyimport functools.[reduce]
+ignore[Space]
+
+_keyword cast := 'let' 'include' 'not' 'cond' 'true' 'false' 'nil' 'or' 'and'
+
+Number := R'\d+'
+
+Numeric ::= ['-' as neg] Number as integral ['.' Number as floating]
+            rewrite
+                r = float(integral.value + '.' + floating.value) if floating else int(integral.value)
+                ASDL.Const.num(-r if neg else r)
+
+MStr    ::= DoubleQuotedStr+ as seq
+            rewrite
+                ''.join(map(lambda _: _.value, seq))
+
+NamedConst ::= 'true' as true | 'false' as false | 'nil' as nil
+            rewrite
+                ASDL.Const.true  if true  else\
+                ASDL.Const.false if false else\
+                ASDL.Const.nil
+
+Sentence ::=| Let     as ret
+            | Expr    as ret
+            | Include as ret
+            rewrite
+                ret
+
+SentenceList ::= (Sentence ('|' Sentence)*) as seq
+                 rewrite
+                    tuple(seq[::2])
+
+Include ::= 'include' DoubleQuotedStr as where_
+        rewrite
+            ASDL.Include(where_.value)
+
+
+Cond ::= 'cond' '{' (Map ('|' Map)*) as map_seq '}'
+         rewrite
+            ASDL.Cond(tuple(map_seq[::2]))
+
+Map  ::= Expr as case '=>' Sentence as do
+        rewrite
+            ASDL.Map(case, do)
+
+
+Let ::= 'let' Name as target '=' Expr as body
+         rewrite
+            ASDL.Assign(target.value, body)
+
+
+
+ExprList ::= (Expr (',' Expr)*) as seq
+            rewrite
+                tuple(seq[::2])
+
+Block ::= '{' SentenceList as stmts '}'
+            rewrite
+                ASDL.Block(stmts)
+
+Expr ::=
+        | Cond as body
+        | App as body
+        rewrite
+            body
+
+App ::= Binary+ as seq
+        rewrite
+            reduce(ASDL.Call, seq)
+
+BinOp   ::=
+        | ('or' | '-' | 'and') as elem
+        | '`' Name as name '`'
+        | ('*' | '^' | '%' | '&' | '@' | '$' | '+' | '/')+ as seq
+        rewrite
+            op = elem.value if elem else\
+                 name.value if name else\
+                 ''.join(map(lambda _: _.value, seq))
+            Operator(ASDL.Symbol(op))
+
+Binary ::= Factor as head (BinOp Factor)* as tail
+           rewrite
+            if tail:
+                itor = TwoSideLink.from_iter((head, *tail))
+                head = bin_expr_reduce(lambda op, a, b: ASDL.Call(ASDL.Call(op, a), b), itor)
+            head
+
+Factor ::= ['-' as neg | 'not' as _not] Atom as body
+            rewrite
+                ASDL.Call(ASDL.Symbol('neg'), body) if neg else\
+                ASDL.Call(ASDL.Symbol('not'), body) if _not else\
+                body
+
+
+Atom  ::=
+        | '(' Expr   as body ')'
+        | Block      as body
+        | Dict       as body
+        | List       as body
+        | Lambda     as body
+        | Tuple      as body
+        | NamedConst as body
+        | Numeric    as body
+        | MStr       as body
+        | Name       as name
+        rewrite
+            if name:
+                body = ASDL.Symbol(name.value)
+            body
+
+
+Tuple ::= '(' [ExprList as seq [',' as comma]]')'
+        with
+            not seq or len(seq) is not 1 or comma
+        rewrite
+            ASDL.Tuple(seq)
+
+List ::= '[' [ExprList] as seq ']'
+        rewrite
+            ASDL.List(seq)
+
+Pair  ::= Expr as key ':' Expr as value
+            rewrite
+                ASDL.Pair(key, value)
+
+Dict   ::= '{' [Pair (',' Pair)*] as seq '}'
+            rewrite
+                ASDL.Dict(tuple(seq[::2]))
+
+Lambda ::= '(' [NameList as params] ')' '->' Expr as body
+            rewrite
+                ASDL.Lambda(params, body)
+
+NameList ::= (Name (',' Name)*) as seq
+            rewrite
+                tuple(seq[::2])
+
+Grammar ::= SentenceList as stmts
+            rewrite
+                ASDL.Block(stmts)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
