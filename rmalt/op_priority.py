@@ -1,27 +1,16 @@
 from typing import Generic, Iterable, TypeVar, Optional, Iterator
 from functools import reduce
-from Redy.Magic.Classic import  record
+from Redy.Magic.Classic import record
+from .std import op_priorities
+
 
 @record
 class Operator:
-        box: ...
+    box: ...
+
 
 T = TypeVar('T')
 
-op_priorities = {
-    "+": 1,
-    "-": 1,
-    '@': 5,
-
-    "*": 10,
-    "/": 10,
-    "//": 10,
-    '%':10,
-
-    '**': 15,
-    '^': 15,
-
-}
 
 class TwoSideLink(Iterable, Generic[T]):
 
@@ -79,7 +68,6 @@ def bin_expr_reduce(func, seq: 'TwoSideLink'):
 
     return bin_expr
 
-
 # s = TwoSideLink.from_iter([3, "-", 2, "*", 4, '/', 5])
 #
 # from Redy.Magic.Classic import record
@@ -98,4 +86,3 @@ def bin_expr_reduce(func, seq: 'TwoSideLink'):
 #
 # print(bin_expr_reduce(Fn, s))
 #
-

@@ -8,6 +8,10 @@ _keyword cast := 'let' 'include' 'not' 'cond' 'true' 'false' 'nil' 'or' 'and'
 
 Number := R'\d+'
 
+Lambda ::= '(' [NameList as params] ')' '->' Expr as body
+            rewrite
+                ASDL.Lambda(params, body)
+
 Numeric ::= ['-' as neg] Number as integral ['.' Number as floating]
             rewrite
                 r = float(integral.value + '.' + floating.value) if floating else int(integral.value)
@@ -51,8 +55,6 @@ Let ::= 'let' Name as target '=' Expr as body
          rewrite
             ASDL.Assign(target.value, body)
 
-
-
 ExprList ::= (Expr (',' Expr)*) as seq
             rewrite
                 tuple(seq[::2])
@@ -74,7 +76,7 @@ App ::= Binary+ as seq
 BinOp   ::=
         | ('or' | '-' | 'and') as elem
         | '`' Name as name '`'
-        | ('*' | '^' | '%' | '&' | '@' | '$' | '+' | '/')+ as seq
+        | ('*' | '^' | '%' | '&' | '@' | '$' | '+' | '/' | '>' | '<' | '=' | '.' | '?')+ as seq
         rewrite
             op = elem.value if elem else\
                  name.value if name else\
@@ -94,18 +96,17 @@ Factor ::= ['-' as neg | 'not' as _not] Atom as body
                 ASDL.Call(ASDL.Symbol('not'), body) if _not else\
                 body
 
-
 Atom  ::=
-        | '(' Expr   as body ')'
         | Block      as body
         | Dict       as body
         | List       as body
         | Lambda     as body
-        | Tuple      as body
         | NamedConst as body
         | Numeric    as body
         | MStr       as body
         | Name       as name
+        | '(' Expr   as body ')'
+        | Tuple      as body
         rewrite
             if name:
                 body = ASDL.Symbol(name.value)
@@ -118,7 +119,7 @@ Tuple ::= '(' [ExprList as seq [',' as comma]]')'
         rewrite
             ASDL.Tuple(seq)
 
-List ::= '[' [ExprList] as seq ']'
+List ::= '[' [ExprList as seq]']'
         rewrite
             ASDL.List(seq)
 
@@ -130,13 +131,11 @@ Dict   ::= '{' [Pair (',' Pair)*] as seq '}'
             rewrite
                 ASDL.Dict(tuple(seq[::2]))
 
-Lambda ::= '(' [NameList as params] ')' '->' Expr as body
-            rewrite
-                ASDL.Lambda(params, body)
+
 
 NameList ::= (Name (',' Name)*) as seq
             rewrite
-                tuple(seq[::2])
+                tuple(map(lambda _: _.value, seq[::2]))
 
 Grammar ::= SentenceList as stmts
             rewrite
