@@ -7,10 +7,21 @@ class Operator:
         box: ...
 
 T = TypeVar('T')
-op_priorities = {
-    "+": 1, "-": 1, "*": 2, "/": 2, "//": 2
-}
 
+op_priorities = {
+    "+": 1,
+    "-": 1,
+    '@': 5,
+
+    "*": 10,
+    "/": 10,
+    "//": 10,
+    '%':10,
+
+    '**': 15,
+    '^': 15,
+
+}
 
 class TwoSideLink(Iterable, Generic[T]):
 
@@ -47,7 +58,7 @@ def bin_expr_reduce(func, seq: 'TwoSideLink'):
     def sort_by_func(e: 'TwoSideLink'):
         return op_priorities[e.content.box.name]
 
-    op_nodes = (each.content for each in seq if isinstance(each.content, Operator))
+    op_nodes = (each for each in seq if isinstance(each.content, Operator))
 
     op_nodes = sorted(op_nodes, key=sort_by_func, reverse=True)
     bin_expr = None

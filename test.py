@@ -12,7 +12,7 @@ x = ze_exp.match("""
 | cond{
       x => 1
     | y => 10
-    | z => 10
+    | z => 10 + 2 * 10 ^ 15 - 9
     }
 """)
 print(x.result)
