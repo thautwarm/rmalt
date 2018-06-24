@@ -8,9 +8,12 @@ import readline
 from .std import std
 
 warnings.filterwarnings('ignore')
-with Path('./rmalt').into('malt.rbnf').open('r') as f:
-    rbnf = f.read()
-ze_exp = ze.compile(rbnf, use='Grammar')
+
+
+# with Path('./rmalt').into('malt.rbnf').open('r') as f:
+#     rbnf = f.read()
+
+ze_exp = ze.compile('import rmalt.malt.[*]', use='Grammar')
 
 KeyWords = ['let', 'include', 'not', 'cond', 'true', 'false', 'nil', 'or', 'and']
 
