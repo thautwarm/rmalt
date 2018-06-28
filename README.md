@@ -4,15 +4,17 @@ The Malt Programming Language
 
 - [而这个方法只需要十分钟就能掌握](https://github.com/thautwarm/RBNF)
 
+语法介绍见[document](./malt-syntax.rst).
+
 特性:
 
-- auto currying
-- lambda only
-- scalable operators
-- weird enough statement separator(`|`)
-- first-class expression
+- 自动柯里化
+- (局部)自定义新运算符和修改运算符
+- First-class Expression
+- 使用Lambda而非函数
+- 该语言设计者想出的非常智障的分句标志(`|`)
 
-[![Overview](./malt_preview.png)](./malt_preview.png)
+其中前两个特性属于本人对malt的改进。
 
 ## 为什么我能在短短几个小时内实现它？
 

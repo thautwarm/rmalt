@@ -65,8 +65,8 @@ def main():
                 idx = min(it.state.max_fetched, len(it.tokens)-1)
                 tk = it.tokens[idx]
                 raise SyntaxError("line {}, column {}".format(tk.lineno, tk.colno))
-
             res = visit(it.result, ctx)
+            
             if res is not None:
                 print('=> ', res)
         except Exception as e:
@@ -76,18 +76,16 @@ def main():
         count_parentheses = 0
 
     while True:
-        line = input('malt> ')
-        cache.append(line)
-        if not line:
-            continue
-        if line == ';':
+        line: str = input('malt> ' if not cache else '      ')
+        
+        if line.endswith(';;'):
+            line = line[:-2]
+            if not line and not cache:
+                continue
+            cache.append(line)
             active()
-        count_parentheses += line.count('(')
-        count_parentheses -= line.count(')')
-        if count_parentheses == 0:
-            active()
-        elif count_parentheses < 0:
-            raise SyntaxError("unmatched `)`.")
+        else:
+            cache.append(line)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,6 @@
 from Redy.Magic.Pattern import Pattern
 from .asdl import *
+from .std import to_linked_list, LinkedList
 from Redy.Opt.ConstExpr import constexpr, const
 
 try:
@@ -21,8 +22,8 @@ def visit(a: ASDL.Symbol, ctx):
 @visit.case(ASDL.List)
 def visit(a: ASDL.List, ctx: dict):
     if not a.args:
-        return []
-    return [visit(each, ctx) for each in a.args]
+        return LinkedList.Nil
+    return to_linked_list(visit(each, ctx) for each in a.args)
 
 
 @visit.case(ASDL.Tuple)
@@ -137,3 +138,8 @@ def visit(a: ASDL.Lambda, ctx: dict):
         return Function(h, ASDL.Lambda(ps, a.body), ctx)
 
     return Function(h, a.body, ctx)
+
+
+@visit.case(ASDL.InfixDef)
+def visit(a: ASDL.InfixDef, ctx: dict):
+    return a.priority

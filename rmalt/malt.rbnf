@@ -1,10 +1,11 @@
 import std.common.[Name Space DoubleQuotedStr Comment]
 pyimport rmalt.asdl.[*]
 pyimport rmalt.op_priority.[*]
+pyimport rmalt.std.[op_priorities]
 pyimport functools.[reduce]
 ignore[Space]
 
-_keyword cast := 'let' 'include' 'not' 'cond' 'true' 'false' 'nil' 'or' 'and'
+_keyword cast := 'let' 'include' 'not' 'cond' 'true' 'false' 'nil' 'or' 'and' 'infix'
 
 Number := R'\d+'
 
@@ -19,7 +20,7 @@ Numeric ::= ['-' as neg] Number as integral ['.' Number as floating]
 
 MStr    ::= DoubleQuotedStr+ as seq
             rewrite
-                ''.join(map(lambda _: _.value, seq))
+                ASDL.Const.str(''.join(map(lambda _: _.value, seq)))
 
 NamedConst ::= 'true' as true | 'false' as false | 'nil' as nil
             rewrite
@@ -27,9 +28,22 @@ NamedConst ::= 'true' as true | 'false' as false | 'nil' as nil
                 ASDL.Const.false if false else\
                 ASDL.Const.nil
 
-Sentence ::=| Let     as ret
-            | Expr    as ret
-            | Include as ret
+InfixDef ::= 'infix' BinOp as op [Number as priority]
+            rewrite
+                op = op.box.name
+                
+                if priority:
+                    priority = int(priority.value) 
+                    op_priorities[op] = priority 
+                else:
+                    priority = op_priorities.get(op)
+                
+                ASDL.InfixDef(op, priority)
+
+Sentence ::=| Let      as ret
+            | Expr     as ret
+            | Include  as ret
+            | InfixDef as ret 
             rewrite
                 ret
 
@@ -50,10 +64,14 @@ Map  ::= Expr as case '=>' Sentence as do
         rewrite
             ASDL.Map(case, do)
 
+Identifier ::= Name as name | '(' BinOp as bin_op ')'
+               rewrite
+                    name.value if name else\
+                    bin_op.box.name
 
-Let ::= 'let' Name as target '=' Expr as body
+Let ::= 'let' Identifier as target '=' Expr as body
          rewrite
-            ASDL.Assign(target.value, body)
+            ASDL.Assign(target, body)
 
 ExprList ::= (Expr (',' Expr)*) as seq
             rewrite
@@ -76,7 +94,7 @@ App ::= Binary+ as seq
 BinOp   ::=
         | ('or' | '-' | 'and') as elem
         | '`' Name as name '`'
-        | ('*' | '^' | '%' | '&' | '@' | '$' | '+' | '/' | '>' | '<' | '=' | '.' | '?')+ as seq
+        | ('*' | '^' | '%' | '&' | '@' | '$' | '+' | '/' | '>' | '<' | '=' | '.' | '?' | '!' | '::')+ as seq
         rewrite
             op = elem.value if elem else\
                  name.value if name else\
@@ -104,12 +122,12 @@ Atom  ::=
         | NamedConst as body
         | Numeric    as body
         | MStr       as body
-        | Name       as name
+        | Identifier as ident
         | '(' Expr   as body ')'
         | Tuple      as body
         rewrite
-            if name:
-                body = ASDL.Symbol(name.value)
+            if ident:
+                body = ASDL.Symbol(ident)
             body
 
 

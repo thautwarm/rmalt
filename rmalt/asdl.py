@@ -73,5 +73,8 @@ class ASDL:
         params: Optional[Tuple['ASDL', ...]]
         body: ...
 
-
+    @record
+    class InfixDef:
+        op: ...
+        priority: ...
 
