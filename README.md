@@ -1,4 +1,9 @@
-The Malt Programming Language
+The Malt Programming Language Implementation Tutorials
+
+- 这是一个实现语言的教程。 我想我明确地说一句话，这个教程是如此简短、完整、充满美感和容易学习，以至于你会在同学/同事们苦恼地使用`Antlr4`、 `Yacc/Lex`时太快地结束工作而被误以为在划水。
+
+- 本教程只实现了一个解释器，你尽可以把它做成什么奇怪的编译器。[LLVM是极好的](https://github.com/f0rki/mapping-high-level-constructs-to-llvm-ir)。
+
 
 ## 马特语言， 只需要四分之一个整日，你就能实现！
 
