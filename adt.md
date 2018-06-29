@@ -3,11 +3,11 @@ Simple ADT Examples
 
 Here is an example written in 3 different languages, you can choose one to start with.
 
-- [F#](https://github.com/thautwarm/rmalt/blob/master/README.md#fsharp)
+- [F#](https://github.com/thautwarm/rmalt/blob/master/adt.md#fsharp)
 
-- [Scala](https://github.com/thautwarm/rmalt/blob/master/README.md#scala)
+- [Scala](https://github.com/thautwarm/rmalt/blob/master/adt.md#scala)
 
-- [Python](https://github.com/thautwarm/rmalt/blob/master/README.md#python)
+- [Python](https://github.com/thautwarm/rmalt/blob/master/adt.md#python)
 
 
 If you're a user of `Haskell`, you don't need to view this page at all :-).
