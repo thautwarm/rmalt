@@ -21,6 +21,25 @@ The Malt Programming Language
 - `Malt` is simple
 - I use [rbnf](https://github.com/thautwarm/RBNF), which is an alternative of `RegExp` tools, and can help you solve any text processing tasks no matter how difficult you once thought it to be.
 
+## 实现指南
+
+`rmalt` 是一个非常经典的解释器实现, 在利用`rbnf`解析输入字串后, 字串被转为目标语言(例如`Python`)内部的`AST/ASDL`表示.
+
+例如，`Let`作为一个语法和语义的结构，其定义方式如下
+
+```
+Let ::= 'let' Identifier as target '=' Expr as body
+         rewrite ASDL.Let(target, body)
+```
+
+这是一段`rbnf`代码, 表示输入的[Tokenizer](https://github.com/thautwarm/RBNF/blob/master/rbnf/Tokenizer.py)列表是如何匹配`Let`结构的。  
+
+`Identifier`和`Expr`都是其他和`Let`类似的[MetaVariable](https://en.wikipedia.org/wiki/Metavariable), 表示在此调用其他结构的匹配规则。
+
+`as`表示将匹配到的结果进行一个局部绑定，最终我们将利用这些结果构成一个`Let`的语义结构`ASDL.Let(target, body)`, 如果你理解[ADT](https://en.wikipedia.org/wiki/Algebraic_data_type)或者[Case Class](https://docs.scala-lang.org/tour/case-classes.html), 那此处的构造对你应该不是难事，否则我建议你看看这个[附加指南](./adt.md).
+
+在你构建好这些`AST`或`ASDL`后，你需要编写一个所谓的`abstract machine`来解释你的结构，通常而言用所谓的`visitor`模式便可以解决，简介的例子可见于[附加指南](./adt.md)的`interpret`函数，也可看看[rmalt的visitor](https://github.com/thautwarm/rmalt/blob/master/rmalt/visitor.py).
+
 ## Related
 
 See rbnf syntaxes of `malt` here:
