@@ -11,6 +11,13 @@ The Malt Programming Language Implementation Tutorials
 
 语法介绍见[document](./malt-syntax.rst).
 
+运行方法(需要Python3.6+)
+```
+pip install -U Redy rbnf
+python test.py
+```
+即可进行repl。
+
 特性:
 
 - 自动柯里化
